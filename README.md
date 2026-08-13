@@ -1,6 +1,6 @@
 # Kraut Vercel PR Template
 
-Minimal Vite + React starter for the Hermes software-development loop.
+Opinionated Vite + SolidJS + TypeScript starter for the Hermes software-development loop.
 
 ## Project preferences
 
