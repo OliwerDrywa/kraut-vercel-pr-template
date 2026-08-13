@@ -2,6 +2,10 @@
 
 Minimal Vite + React starter for the Hermes software-development loop.
 
+## Project preferences
+
+[`PROJECT_PREFERENCES.md`](./PROJECT_PREFERENCES.md) is the project-level source of truth for the approved stack, code style, quality expectations, and how to change them. Read it before implementing a change; update it in the same PR when a deliberate preference change is made.
+
 ## Local
 
 ```bash
