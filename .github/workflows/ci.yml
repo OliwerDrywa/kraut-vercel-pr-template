@@ -5,9 +5,14 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
-  build:
+  dependencies:
+    name: Prepare dependencies
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -15,4 +20,90 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: tar -czf node-modules.tar.gz node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: node-modules
+          path: node-modules.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+
+  lint:
+    name: Lint
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+      - run: tar -xzf node-modules.tar.gz
+      - run: npm run lint
+
+  typecheck:
+    name: Type check
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+      - run: tar -xzf node-modules.tar.gz
+      - run: npm run typecheck
+
+  test:
+    name: Test
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+      - run: tar -xzf node-modules.tar.gz
+      - run: npm run test
+
+  knip:
+    name: Unused files and dependencies
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+      - run: tar -xzf node-modules.tar.gz
+      - run: npm run knip
+
+  build:
+    name: Build
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+      - run: tar -xzf node-modules.tar.gz
       - run: npm run build

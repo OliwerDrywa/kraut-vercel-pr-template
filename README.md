@@ -13,6 +13,16 @@ npm install
 npm run dev
 ```
 
+### Quality checks
+
+Run the complete local gate before opening a pull request:
+
+```bash
+npm run check
+```
+
+This runs ESLint, TypeScript type-checking, Vitest, Knip (unused files, exports, and dependencies), and the production build. GitHub Actions runs the same checks for every pull request and push to `main`.
+
 ## Preview workflow
 
 Every pull request should receive an isolated Vercel preview deployment through the repository's Vercel Git integration. Vercel automatically comments the preview URL on the PR; Hermes shares that URL in chat for mobile review.
