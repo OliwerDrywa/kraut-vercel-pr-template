@@ -9,10 +9,10 @@ permissions:
   contents: read
 
 jobs:
-  quality:
-    name: Quality checks
+  dependencies:
+    name: Prepare dependencies
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,13 +20,89 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Lint
-        run: npm run lint
-      - name: Type check
-        run: npm run typecheck
-      - name: Test
-        run: npm run test
-      - name: Unused files and dependencies
-        run: npm run knip
-      - name: Build
-        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+          if-no-files-found: error
+          retention-days: 1
+
+  lint:
+    name: Lint
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+      - run: npm run lint
+
+  typecheck:
+    name: Type check
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+      - run: npm run typecheck
+
+  test:
+    name: Test
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+      - run: npm run test
+
+  knip:
+    name: Unused files and dependencies
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+      - run: npm run knip
+
+  build:
+    name: Build
+    needs: dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+      - run: npm run build
